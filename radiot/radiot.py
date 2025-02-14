@@ -3,6 +3,13 @@ from graphviz import Digraph
 
 from symbols import atomic_symbols, atomic_numbers
 from library import lib
+from pyne import data as nd
+import math
+
+
+# the activity R at time t can be calculated using the equation: $R = R_0 ^{-\lambda t}$
+# the number of radiactive nuclei remaining after time t is: $N = N_0 e^{-\lambda t}$
+
 
 
 class DecayChain:
@@ -137,15 +144,33 @@ class DecayChain:
         # Show diagram
         dot.view()  # This will open the generated PNG file
 
-    def compute_decay_time(self, nuclide):
+    def compute_decay_time(self):
         """
-        Compute the decay time (half-life) for a given nuclide.
+        Compute the total decay time for a given decay chain.
 
-        :param nuclide: The nuclide for which to compute the decay time.
-        :return: Half-life of the nuclide.
+        This function calculates the total decay time of a decay chain
+        by summing the half-lives of all the nuclides involved in the chain.
+
+        :return: Total decay time for the chain.
         """
-        # Logic to compute half-life from nuclide data
-        pass
+        dc = self.decay_chain
+        total_decay_time = 0
+
+        for item in dc:
+            if isinstance(item, tuple) and len(item) == 2:
+                decay_mode, (mass_number, atomic_number) = item
+                try:
+                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                    nuclide_name = f'{atomic_symbol}-{mass_number}'
+                    decay_constant = nd.decay_const(nuclide_name)
+                    half_life = math.log(2) / decay_constant
+                    total_decay_time += half_life
+                except KeyError as e:
+                    print(f"Decay constant not found for {nuclide_name}: {e}")
+                except Exception as e:
+                    print(f"Error computing decay time for {nuclide_name}: {e}")
+
+        return total_decay_time
 
     def simulate_decay(self, initial_amount, time_period): # time_period should be the sum of the half-times of the chain, unless a specific value is provided
         """
