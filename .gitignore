@@ -1,3 +1,6 @@
 # os esentials
 .DS_Store
 .idea/
+
+# cache
+radiot/__pycache__/
