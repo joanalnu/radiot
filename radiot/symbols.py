@@ -119,7 +119,7 @@ atomic_symbols = {
   	118:'Og'  # Oganesson
 }
 
-atomic_symbols_inverted = {
+atomic_numbers = {
     'H':  1,   # Hydrogen
     'He': 2,   # Helium
     'Li': 3,   # Lithium
