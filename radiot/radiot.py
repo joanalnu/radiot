@@ -172,41 +172,68 @@ class DecayChain:
 
         return total_decay_time
 
-    def simulate_decay(self, initial_amount, time_period): # time_period should be the sum of the half-times of the chain, unless a specific value is provided
-        """
-        Simulate the decay process over a specified time period.
+    import math
+    from pyne import data as nd
 
-        :param initial_amount: Initial amount of the starting nuclide.
-        :param time_period: Total time over which to simulate decay.
-        :return: A dictionary with final amounts of each transited element.
-        """
-        # Logic to simulate decay and calculate final amounts
-        pass
-
-    def calculate_percentages(self):
+    def simulate_decay(self, initial_amount, time_period=None):
         """
         Calculate the percentages of each transited element left in the sample after decay.
 
-        :return: A dictionary with percentages of each element.
+        :param initial_amount: The initial amount of the starting nuclide.
+        :param time_period: The total time over which to simulate decay.
+                            If not provided, it defaults to the sum of half-times of the decay chain.
+        :return: A dictionary with percentages of each element remaining.
         """
-        # Logic to calculate percentages
-        pass
+        if time_period is None:
+            try:
+                time_period = self.compute_decay_time()  # Use computed decay time if not provided
+            except Exception as e:
+                raise ValueError("Provide a time_period or run the compute_decay_time function first.")
 
-    def plot_decay_results(self):
+        remaining_amounts = {}
+
+        for item in self.decay_chain:
+            if isinstance(item, tuple):
+                decay_mode, (mass_number, atomic_number) = item
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuclide_name = f'{atomic_symbol}-{mass_number}'
+
+                try:
+                    decay_constant = nd.decay_const(nuclide_name)
+
+                    # Calculate remaining amount using exponential decay formula
+                    remaining_amount = initial_amount * math.exp(-decay_constant * time_period)
+
+                    # Store result as a percentage of the initial amount
+                    remaining_percent = (remaining_amount / initial_amount) * 100
+                    remaining_amounts[nuclide_name] = remaining_percent
+
+                    # Update initial_amount for subsequent nuclides in chain
+                    initial_amount = remaining_amount  # Update for next nuclide's calculation
+
+                except KeyError as e:
+                    print(f"Decay constant not found for {nuclide_name}: {e}")
+                except Exception as e:
+                    print(f"Error simulating decay for {nuclide_name}: {e}")
+
+        return remaining_amounts
+
+    def plot_decay_results(self, remaining_amounts):
         """
         Plot a pie chart showing the percentages of each transited element remaining after decay.
+
+        :param remaining_amounts: the output of the simulate_decay function
         """
-        percentages = self.calculate_percentages()
+        nuclide_names = remaining_amounts.keys()
+        percentages = remaining_amounts.values()
 
-        # Create pie chart using matplotlib
-        labels = percentages.keys()
-        sizes = percentages.values()
+        plt.figure(figsize=(10, 7))
+        plt.pie(percentages, labels=nuclide_names)
 
-        plt.figure(figsize=(8, 8))
-        plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
-        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        plt.title('Decay Chain Results')
         plt.show()
+        plt.savefig("../remaining_amounts_distribution.png", dpi=600)
+
+
 
 # Example usage:
 # Assuming you have loaded your nuclide data into a variable called `nuclide_data`
