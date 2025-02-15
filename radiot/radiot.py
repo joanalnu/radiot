@@ -112,26 +112,40 @@ class DecayChain:
 
         for i in range(len(dc)):
             if isinstance(dc[i], tuple):
-                radiation = dc[i][0]
-                mass_number = dc[i][1][0]
-                atomic_number = dc[i][1][1]
-                node_id = f'{mass_number}_{atomic_number}'
-                dot.node(node_id, f"{self.atomicnumber_2_atomicsymbol(atomic_number)}-{mass_number}", color=cmap[radiation])
+                if isinstance(dc[i][1], str):
+                    print(f'Final gamma: {dc[i]}')
+                    dot.node(f'gamma_{i}', 'Gamma Radiation', color='lightgrey')
 
-                # Create edge from previous nuclide to current nuclide
-                if i > 0 and isinstance(dc[i - 1], tuple): # only if previous nuclide existes!
-                    prev_mass_number = dc[i - 1][1][0]
-                    prev_atomic_number = dc[i - 1][1][1]
+                    if len(dc)==2:
+                        prev_mass_number = dc[i-1][0]
+                        prev_atomic_number = dc[i-1][1]
+                        prev_id = f'{prev_mass_number}_{prev_atomic_number}'
+                        dot.edge(prev_id, f'gamma_{i}', label='g')
+                    else:
+                        prev_mass_number = dc[i - 1][1][0]
+                        prev_atomic_number = dc[i - 1][1][1]
+                        prev_id = f'{prev_mass_number}_{prev_atomic_number}'
+                        dot.edge(prev_id, f'gamma_{i}', label='g')
+                        
+                elif isinstance(dc[i][0], str):
+                    print(f'Intermediate: {dc[i]}')
+                    radiation = dc[i][0]
+                    mass_number, atomic_number = dc[i][1]
+                    node_id = f'{mass_number}_{atomic_number}'
+                    dot.node(node_id, f"{self.atomicnumber_2_atomicsymbol(atomic_number)}-{mass_number}", color=cmap[radiation])
+
+                    prev_mass_number, prev_atomic_number = dc[i - 1][1]
                     prev_id = f'{prev_mass_number}_{prev_atomic_number}'
                     dot.edge(prev_id, node_id, label=radiation)
-
-            elif dc[i] == 'g':
-                dot.node(f'gamma_{i}', 'Gamma Radiation', color='lightgrey')
-                if i > 0 and isinstance(dc[i - 1], tuple):
-                    prev_mass_number = dc[i - 1][1][0]
-                    prev_atomic_number = dc[i - 1][1][1]
-                    prev_id = f'{prev_mass_number}_{prev_atomic_number}'
-                    dot.edge(prev_id, f'gamma_{i}', label='g')
+                    
+                
+                    
+                else: # initial nuclide
+                    print(f'Initial: {dc[i]}')
+                    mass_number, atomic_number = dc[i]
+                    node_id = f'{mass_number}_{atomic_number}'
+                    dot.node(node_id, f"{self.atomicnumber_2_atomicsymbol(atomic_number)}-{mass_number}")
+                
 
         # Add a legend
         with dot.subgraph(name='legend') as legend:
