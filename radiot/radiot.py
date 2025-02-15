@@ -23,19 +23,22 @@ class DecayChain:
         self.decay_chain = []  # To store the decay chain
         self.final_amounts = {}  # To store final amounts of each nuclide
 
-    def get_nuclide_data(self, starting_nuclide):
+    def get_nuclide_data(self, current_nuclide):
         """
         Access the data for a specific nuclide based on mass number and atomic symbol.
 
         :param starting_nuclide: a tuple consisting of (mass_number, atomic_symbol)
         :return: the corresponding list or None if not found.
         """
-        mass_number, atomic_symbol = starting_nuclide
+        mass_number, atomic_number = current_nuclide
         for nuclide in self.nuclide_data:
-            if nuclide[2] == mass_number and nuclide[1] == atomic_symbol:
-                return nuclide
+            try: 
+                if int(nuclide[0])==atomic_number and int(nuclide[2])==mass_number:
+                    return nuclide
+            except Exception as e:
+                pass
 
-        return None
+        raise ValueError(f"Nuclide not found; input: {current_nuclide}")
 
     def atomicsymbol_2_atomicnumber(self, atomic_symbol):
         """
@@ -84,8 +87,6 @@ class DecayChain:
 
         self.decay_chain = dc
         return dc  # Return the decay chain for further use
-
-    from graphviz import Digraph  # Ensure you have this import at the top of your file
 
     def chain_chart(self):
         """
@@ -171,9 +172,6 @@ class DecayChain:
                     print(f"Error computing decay time for {nuclide_name}: {e}")
 
         return total_decay_time
-
-    import math
-    from pyne import data as nd
 
     def simulate_decay(self, initial_amount, time_period=None):
         """
