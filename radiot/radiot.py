@@ -159,6 +159,7 @@ class DecayChain:
         dot.view()  # This will open the generated PNG file
 
     def compute_decay_time(self):
+        # TODO: rewrite this for new database
         """
         Compute the total decay time for a given decay chain.
 
