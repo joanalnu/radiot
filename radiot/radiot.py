@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 from graphviz import Digraph
 
-from symbols import atomic_symbols, atomic_numbers
-from library import lib
-from pyne import data as nd
+from data.symbols import atomic_symbols, atomic_numbers
+from data.library import lib
 import math
 
 
