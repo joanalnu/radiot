@@ -1,9 +1,7 @@
-digraph "./charts/(238, 92)_decay_chain" {
+digraph "./charts/(246, 94)_decay_chain" {
 	dpi=600 rankdir=TB size=12
 	node [color=lightblue fontname=Arial fontsize=12 shape=box style="rounded, filled"]
-	"238_92" [label="U-238"]
-	gamma_1 [label="Gamma Radiation" color=lightgrey]
-	"238_92" -> gamma_1 [label=g]
+	"246_94" [label="Pu-246"]
 	subgraph legend {
 		color=black label=Legend style=dashed
 		a [label="Alpha Decay" color=yellow]
