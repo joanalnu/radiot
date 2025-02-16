@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 from graphviz import Digraph
+import math
 
 from data.symbols import atomic_symbols, atomic_numbers
 from data.library import lib
-import math
+from data.half_times import half_times
+
 
 
 # the activity R at time t can be calculated using the equation: $R = R_0 ^{-\lambda t}$
@@ -174,16 +176,12 @@ class DecayChain:
         for item in dc:
             if isinstance(item, tuple) and len(item) == 2:
                 decay_mode, (mass_number, atomic_number) = item
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
                 try:
-                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                    nuclide_name = f'{atomic_symbol}-{mass_number}'
-                    decay_constant = nd.decay_const(nuclide_name)
-                    half_life = math.log(2) / decay_constant
-                    total_decay_time += half_life
+                    total_decay_time += half_times[nuclide_name]
                 except KeyError as e:
                     print(f"Decay constant not found for {nuclide_name}: {e}")
-                except Exception as e:
-                    print(f"Error computing decay time for {nuclide_name}: {e}")
 
         return total_decay_time
 
