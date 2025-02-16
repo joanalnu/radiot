@@ -1,3 +1,5 @@
+from itertools import count
+
 import matplotlib.pyplot as plt
 from graphviz import Digraph
 import math
@@ -145,7 +147,7 @@ class DecayChain:
         dc = self.decay_chain
 
         # Create directed graph
-        dot = Digraph(f'./charts/{dc[0]}_decay_chain', format='png') #
+        dot = Digraph(f'./charts/{dc[0]}_decay_chain', format='png')
         dot.attr(rankdir='TB', size='12', dpi='600')
         dot.attr('node', shape='box', style='rounded, filled', color='lightblue', fontname='Arial', fontsize='12')
 
@@ -215,20 +217,21 @@ class DecayChain:
         for item in dc:
             # TODO: substitute this for the read class functions
             if isinstance(item, tuple) and len(item) == 2:
+                nuc = ''
                 if isinstance(item[1], str):
-                    pass
+                    break
                 elif isinstance(item[0], str):
                     decay_mode, (mass_number, atomic_number) = item
                     atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                    nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
+                    nuc = f'{atomic_symbol.lower()}{mass_number}'
                 else:
                     mass_number, atomic_number = item
                     atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                    nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
+                    nuc = f'{atomic_symbol.lower()}{mass_number}'
                 try:
-                    total_decay_time += half_times[nuclide_name]
+                    total_decay_time += half_times[nuc]
                 except KeyError as e:
-                    print(f"Decay constant not found for {nuclide_name}: {e}")
+                    print(f"Decay constant not found for {nuc}: {e}")
 
         return total_decay_time
 
@@ -243,36 +246,43 @@ class DecayChain:
         """
         if time_period is None:
             try:
-                time_period = self.compute_decay_time()  # Use computed decay time if not provided
+                time_period = self.half_time()  # Use computed decay time if not provided
             except Exception as e:
                 raise ValueError("Provide a time_period or run the compute_decay_time function first.")
 
         remaining_amounts = {}
 
         for item in self.decay_chain:
-            # TODO: substitute this for the read class functions
-            if isinstance(item, tuple):
-                decay_mode, (mass_number, atomic_number) = item
-                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                nuclide_name = f'{atomic_symbol}-{mass_number}'
+            if isinstance(item, tuple) and len(item) == 2:
+                nuc = ''
+                if isinstance(item[1], str):
+                    break
+                elif isinstance(item[0], str):
+                    decay_mode, (mass_number, atomic_number) = item
+                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                    nuc = f'{atomic_symbol.lower()}{mass_number}'
+                else:
+                    mass_number, atomic_number = item
+                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                    nuc = f'{atomic_symbol.lower()}{mass_number}'
 
                 try:
-                    decay_constant = nd.decay_const(nuclide_name)
+                    decay_constant = math.log(2) / half_times[nuc]
 
                     # Calculate remaining amount using exponential decay formula
                     remaining_amount = initial_amount * math.exp(-decay_constant * time_period)
 
                     # Store result as a percentage of the initial amount
                     remaining_percent = (remaining_amount / initial_amount) * 100
-                    remaining_amounts[nuclide_name] = remaining_percent
+                    remaining_amounts[nuc] = remaining_percent
 
                     # Update initial_amount for subsequent nuclides in chain
                     initial_amount = remaining_amount  # Update for next nuclide's calculation
 
                 except KeyError as e:
-                    print(f"Decay constant not found for {nuclide_name}: {e}")
+                    print(f"Decay constant not found for {nuc}: {e}")
                 except Exception as e:
-                    print(f"Error simulating decay for {nuclide_name}: {e}")
+                    print(f"Error simulating decay for {nuc}: {e}")
 
         return remaining_amounts
 
@@ -292,10 +302,29 @@ class DecayChain:
         plt.savefig("../remaining_amounts_distribution.png", dpi=600)
 
 
+    def isotopes(self, nuc):
+        atomic_number = 0
+        if isinstance(nuc, tuple) and len(nuc) == 2:
+            nuc = ''
+            if isinstance(nuc[1], str):
+                break
+            elif isinstance(nuc[0], str):
+                decay_mode, (mass_number, atomic_number) = nuc
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuc = f'{atomic_symbol.lower()}{mass_number}'
+            else:
+                mass_number, atomic_number = nuc
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuc = f'{atomic_symbol.lower()}{mass_number}'
 
-# Example usage:
-# Assuming you have loaded your nuclide data into a variable called `nuclide_data`
-# decay_chain = DecayChain(nuclide_data)
-# decay_chain.find_decay_chain('Starting_Nuclide_Symbol')
-# decay_chain.simulate_decay(initial_amount=1000, time_period=5000)
-# decay_chain.plot_decay_results()
+        if atomic_number==0:
+            raise KeyError("Wrong input format.")
+
+        count = 0
+        for nuclide in lib:
+            if nuclide[0] == str(int(i)):
+
+        if count==0:
+            raise ValueError(f"No isotope found for atomic Number: {atomic_number}")
+        else:
+            return count
