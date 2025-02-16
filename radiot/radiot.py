@@ -14,6 +14,43 @@ from data.half_times import half_times
 
 
 class DecayChain:
+    class read:
+        def __init__(self):
+            """Initialize the read subclass."""
+
+        def read(self, nuc):
+            if isinstance(nuc[1], str):
+                pass
+            elif isinstance(nuc[0], str):
+                decay_mode, (mass_number, atomic_number) = nuc
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuc_name = f'{atomic_symbol}{mass_number}'
+                return [mass_number, atomic_number, atomic_symbol, nuc_name, decay_mode]
+            else:
+                mass_number, atomic_number = nuc
+                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                nuc_name = f'{atomic_symbol}{mass_number}'
+                return [mass_number, atomic_number, atomic_symbol, nuc_name]
+
+        def atomic_symbol(self, nuc):
+            return self.read(nuc)[2]
+
+        def atomic_number(self, nuc):
+            return self.read(nuc)[1]
+
+        def mass_number(self, nuc):
+            return self.read(nuc)[0]
+
+        def decay_type(self, nuc):
+            try:
+                return self.ead(nuc)[4]
+            except IndexError:
+                return None
+
+        def nuc_name(self, nuc):
+            return self.read(nuc)[3]
+
+
     def __init__(self):
         """
         Initialize the DecayChain class with nuclide data.
@@ -23,6 +60,7 @@ class DecayChain:
         self.nuclide_data = lib  # Store the nuclide data
         self.decay_chain = []  # To store the decay chain
         self.final_amounts = {}  # To store final amounts of each nuclide
+        read = read() # TODO: I'm not sure this works
 
     def get_nuclide_data(self, current_nuclide):
         """
@@ -107,11 +145,12 @@ class DecayChain:
         dc = self.decay_chain
 
         # Create directed graph
-        dot = Digraph(f'{dc[0]}_decay_chain', format='png')
+        dot = Digraph(f'./charts/{dc[0]}_decay_chain', format='png') #
         dot.attr(rankdir='TB', size='12', dpi='600')
         dot.attr('node', shape='box', style='rounded, filled', color='lightblue', fontname='Arial', fontsize='12')
 
         for i in range(len(dc)):
+            # TODO: substitute this for the read class functions (maybe)
             if isinstance(dc[i], tuple):
                 if isinstance(dc[i][1], str):
                     print(f'Final gamma: {dc[i]}')
@@ -160,7 +199,7 @@ class DecayChain:
         # Show diagram
         dot.view()  # This will open the generated PNG file
 
-    def compute_decay_time(self):
+    def half_time(self):
         # TODO: rewrite this for new database
         """
         Compute the total decay time for a given decay chain.
@@ -174,10 +213,18 @@ class DecayChain:
         total_decay_time = 0
 
         for item in dc:
+            # TODO: substitute this for the read class functions
             if isinstance(item, tuple) and len(item) == 2:
-                decay_mode, (mass_number, atomic_number) = item
-                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
+                if isinstance(item[1], str):
+                    pass
+                elif isinstance(item[0], str):
+                    decay_mode, (mass_number, atomic_number) = item
+                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                    nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
+                else:
+                    mass_number, atomic_number = item
+                    atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
+                    nuclide_name = f'{atomic_symbol.lower()}{mass_number}'
                 try:
                     total_decay_time += half_times[nuclide_name]
                 except KeyError as e:
@@ -203,6 +250,7 @@ class DecayChain:
         remaining_amounts = {}
 
         for item in self.decay_chain:
+            # TODO: substitute this for the read class functions
             if isinstance(item, tuple):
                 decay_mode, (mass_number, atomic_number) = item
                 atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
