@@ -1,5 +1,3 @@
-from itertools import count
-
 import matplotlib.pyplot as plt
 from graphviz import Digraph
 import math
@@ -16,7 +14,7 @@ from data.half_times import half_times
 
 
 class DecayChain:
-    class read:
+    class Read:
         def __init__(self):
             """Initialize the read subclass."""
 
@@ -45,7 +43,7 @@ class DecayChain:
 
         def decay_type(self, nuc):
             try:
-                return self.ead(nuc)[4]
+                return self.read(nuc)[4]
             except IndexError:
                 return None
 
@@ -56,19 +54,17 @@ class DecayChain:
     def __init__(self):
         """
         Initialize the DecayChain class with nuclide data.
-
-        :param nuclide_data: List of tuples containing nuclide information.
         """
         self.nuclide_data = lib  # Store the nuclide data
         self.decay_chain = []  # To store the decay chain
         self.final_amounts = {}  # To store final amounts of each nuclide
-        read = read() # TODO: I'm not sure this works
+        # read = read() # TODO: I'm not sure this works
 
     def get_nuclide_data(self, current_nuclide):
         """
         Access the data for a specific nuclide based on mass number and atomic symbol.
 
-        :param starting_nuclide: a tuple consisting of (mass_number, atomic_symbol)
+        :param current_nuclide: a tuple consisting of (mass_number, atomic_symbol)
         :return: the corresponding list or None if not found.
         """
         mass_number, atomic_number = current_nuclide
@@ -76,7 +72,7 @@ class DecayChain:
             try: 
                 if int(nuclide[0])==atomic_number and int(nuclide[2])==mass_number:
                     return nuclide
-            except Exception as e:
+            except Exception:
                 pass
 
         raise ValueError(f"Nuclide not found; input: {current_nuclide}")
@@ -247,7 +243,7 @@ class DecayChain:
         if time_period is None:
             try:
                 time_period = self.half_time()  # Use computed decay time if not provided
-            except Exception as e:
+            except Exception:
                 raise ValueError("Provide a time_period or run the compute_decay_time function first.")
 
         remaining_amounts = {}
@@ -303,28 +299,28 @@ class DecayChain:
 
 
     def isotopes(self, nuc):
+        """
+        Returns list of isotopes of an element.
+        :param nuc:
+        :return: list of isotopes
+        """
         atomic_number = 0
         if isinstance(nuc, tuple) and len(nuc) == 2:
             nuc = ''
             if isinstance(nuc[1], str):
-                break
+                pass
             elif isinstance(nuc[0], str):
                 decay_mode, (mass_number, atomic_number) = nuc
-                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                nuc = f'{atomic_symbol.lower()}{mass_number}'
             else:
                 mass_number, atomic_number = nuc
-                atomic_symbol = self.atomicnumber_2_atomicsymbol(atomic_number)
-                nuc = f'{atomic_symbol.lower()}{mass_number}'
 
         if atomic_number==0:
             raise KeyError("Wrong input format.")
 
-        count = 0
+        isotopes = []
         for nuclide in lib:
-            if nuclide[0] == str(int(i)):
+            if nuclide[0] == str(atomic_number):
+                iso = f'{nuclide[1]}{nuclide[2]}'
+                isotopes.append(iso)
 
-        if count==0:
-            raise ValueError(f"No isotope found for atomic Number: {atomic_number}")
-        else:
-            return count
+        return isotopes
